@@ -36,11 +36,13 @@ public:
 
 	// 相机位置参数
 	float radius = 4.0;
-	float rotateAngle = 0.0;
+	float rotateAngle = 180;
 	float upAngle = 0.0;
-	glm::vec4 eye;
-	glm::vec4 at;
-	glm::vec4 up;
+	glm::vec4 eye = glm::vec4(0.0, 0.5, 2.0, 1.0);
+	glm::vec4 at = glm::vec4(0.0, 0.5, 0.0, 1.0);
+	glm::vec4 up = glm::vec4(0.0, 1.0, 0.0, 0.0);;
+
+	float moveSpeed = 0.15f; // 移动速度
 
 	// 投影参数
 	float zNear = 0.1;
@@ -55,5 +57,79 @@ public:
 
 	void updateProjectionMatrix();
 
+	void driving(float speed) {
+		glm::vec3 direction = glm::normalize(glm::vec3(0.0, 0.0, -1.0));
+		eye += glm::vec4(direction * speed, 0.0);
+		at += glm::vec4(direction * speed, 0.0);
+	}
+
+	void moveForward(float speed) {
+		if (mode == FREE) {
+			glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+			eye += glm::vec4(direction * speed, 0.0);
+			at += glm::vec4(direction * speed, 0.0);
+		}
+	}
+
+	void moveBackward(float speed) {
+		if (mode == FREE) {
+			glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+			eye -= glm::vec4(direction * speed, 0.0);
+			at -= glm::vec4(direction * speed, 0.0);
+		}
+	}
+
+	void moveLeft(float speed) {
+		if (mode == FREE) {
+			glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+			glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
+			eye += glm::vec4(right * speed, 0.0);
+			at += glm::vec4(right * speed, 0.0);
+		}
+	}
+
+	void moveRight(float speed) {
+		if (mode == FREE) {
+			glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+			glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
+			eye -= glm::vec4(right * speed, 0.0);
+			at -= glm::vec4(right * speed, 0.0);
+		}
+	}
+
+	void moveUp(float speed) {
+		if (mode == FREE) {
+			eye += glm::vec4(glm::vec3(up) * speed, 0.0);
+			at += glm::vec4(glm::vec3(up) * speed, 0.0);
+		}
+	}
+
+	void moveDown(float speed) {
+		if (mode == FREE) {
+			eye -= glm::vec4(glm::vec3(up) * speed, 0.0);
+			at -= glm::vec4(glm::vec3(up) * speed, 0.0);
+		}
+	}
+
+	enum Mode { ORBIT, FREE };
+	Mode mode = FREE; // 默认模式为旋转视角
+
+	bool follow = false;
+
+	void toggleMode() {
+		mode = (mode == ORBIT) ? FREE : ORBIT;
+		if (mode == ORBIT) {
+			updateAt();
+			updateOrbitParams();
+		}
+	}
+
+	void updateAt() {
+		// 计算 at 的位置：位于相机正前方一定距离
+		glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+		at = eye + glm::vec4(direction * radius, 0.0);
+	}
+
+	void updateOrbitParams();
 };
 #endif

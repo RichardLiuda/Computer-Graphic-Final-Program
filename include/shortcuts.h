@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <imgui.h>
 #include <implot.h>
+#include <string>
 //using namespace std;
 
 #define printVec2(vec) std::cout << "(" << vec.x << ", " << vec.y << ")" << std::endl;

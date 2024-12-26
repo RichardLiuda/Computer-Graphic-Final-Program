@@ -35,10 +35,10 @@ const glm::vec3 triangle_vertices[3] = {
 
 // 正方形平面
 const glm::vec3 square_vertices[4] = {
-	glm::vec3(-50,0, -50),
-	glm::vec3(50, 0,-50),
-	glm::vec3(50, 0, 50),
-	glm::vec3(-50,0, 50),
+	glm::vec3(-5,0, -10),
+	glm::vec3(5, 0, -10),
+	glm::vec3(5, 0, 1),
+	glm::vec3(-5,0, 1),
 };
 
 
@@ -169,6 +169,14 @@ GLdouble TriMesh::getHighest() {
 	return highest;
 }
 
+float TriMesh::getOpacity() {
+	return opacity;
+}
+
+void TriMesh::setOpacity(float opacity) {
+	this->opacity = opacity;
+}
+
 void TriMesh::setLowest(GLdouble lowest) {
 	this->lowest = lowest;
 }
@@ -185,31 +193,38 @@ bool TriMesh::getIsDisplay() {
 	return isDisplay;
 }
 
-glm::mat4 TriMesh::getModelMatrix()
+void TriMesh::updateMatrix()
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::vec3 trans = getTranslation();
 	model = glm::translate(model, getTranslation());
-	model = glm::rotate(model, glm::radians(getRotation()[2]), glm::vec3(0.0, 0.0, 1.0));
-	model = glm::rotate(model, glm::radians(getRotation()[1]), glm::vec3(0.0, 1.0, 0.0));
-	model = glm::rotate(model, glm::radians(getRotation()[0]), glm::vec3(1.0, 0.0, 0.0));
+	model = glm::rotate(model, glm::radians(getRotation().z), glm::vec3(0.0, 0.0, 1.0));
+	model = glm::rotate(model, glm::radians(getRotation().y), glm::vec3(0.0, 1.0, 0.0));
+	model = glm::rotate(model, glm::radians(getRotation().x), glm::vec3(1.0, 0.0, 0.0));
 	model = glm::scale(model, getScale());
-	return model;
+	modelMatrix = model;
+}
+
+glm::mat4 TriMesh::getModelMatrix() {
+	return modelMatrix;
 }
 
 void TriMesh::setTranslation(glm::vec3 translation)
 {
 	this->translation = translation;
+	updateMatrix();
 }
 
 void TriMesh::setRotation(glm::vec3 rotation)
 {
 	this->rotation = rotation;
+	updateMatrix();
 }
 
 void TriMesh::setScale(glm::vec3 scale)
 {
 	this->scale = scale;
+	updateMatrix();
 }
 
 void TriMesh::scaleModel(GLdouble scaleFactor)
@@ -337,6 +352,13 @@ void TriMesh::generateSquare(glm::vec3 color)
 		vertex_colors.push_back(glm::vec3(20 / 255, 114 / 255, 140 / 255));
 	}
 
+	vertex_textures.push_back(glm::vec2(0.0, 0.0));
+	vertex_textures.push_back(glm::vec2(1.0, 0.0));
+	vertex_textures.push_back(glm::vec2(1.0, 1.0));
+	vertex_textures.push_back(glm::vec2(0.0, 1.0));
+
+
+
 	// 每个三角面片的顶点下标
 	faces.push_back(vec3i(0, 1, 2));
 	faces.push_back(vec3i(0, 2, 3));
@@ -455,3 +477,80 @@ glm::mat4 Light::getShadowProjectionMatrix() {
 	);
 }
 
+float TriMesh::getRoughness() { return roughness; }
+void TriMesh::setRoughness(float _roughness) { roughness = _roughness; }
+
+float TriMesh::getMetalness() { return metalness; }
+void TriMesh::setMetalness(float _metalness) { metalness = _metalness; }
+
+std::string TriMesh::getNormalTexturePath() { return normalTexturePath; }
+void TriMesh::setNormalTexturePath(const std::string& path) { normalTexturePath = path; }
+
+float Light::getConstant() { return constant; }
+float Light::getLinear() { return linear; }
+float Light::getQuadratic() { return quadratic; }
+
+void TriMesh::generateSkybox() {
+	// 创建顶点前要先把那些vector清空
+	cleanData();
+
+	// 天空盒的顶点数据
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
+	};
+
+	// 将顶点数据存储到 vertex_positions 中
+	for (int i = 0; i < 36; i++) {
+		vertex_positions.push_back(glm::vec3(skyboxVertices[i * 3], skyboxVertices[i * 3 + 1], skyboxVertices[i * 3 + 2]));
+		vertex_colors.push_back(glm::vec3(1.0f)); // 默认颜色为白色
+	}
+
+	// 将顶点数据存储到 points 中
+	points = vertex_positions;
+	colors = vertex_colors;
+}
+
+void TriMesh::setModelMatrix(const glm::mat4& matrix) {
+	modelMatrix = matrix;
+}

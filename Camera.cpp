@@ -30,9 +30,6 @@ void Camera::updateProjectionMatrix()
 
 glm::mat4 Camera::lookAt(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up)
 {
-	// @TODO: Task1:请按照实验课内容补全相机观察矩阵的计算
-	// use glm.
-	// compute directly.
 	// 获得相机方向。
 	glm::vec4 n = glm::normalize(eye - at);
 	// 获得右(x)轴方向。
@@ -53,14 +50,14 @@ glm::mat4 Camera::lookAt(const glm::vec4& eye, const glm::vec4& at, const glm::v
 	p[2].w = -(eye.z);
 
 	glm::mat4 view = p * c;
-	return view;							// 计算最后需要沿-eye方向平移
+	return view;
 }
 
 glm::mat4 Camera::ortho(const GLfloat left, const GLfloat right,
 	const GLfloat bottom, const GLfloat top,
 	const GLfloat zNear, const GLfloat zFar)
 {
-	// @TODO: Task2:请按照实验课内容补全正交投影矩阵的计算
+	// 正交投影矩阵的计算
 	glm::mat4 c = glm::mat4(1.0f);
 	c[0][0] = 2.0 / (right - left);
 	c[1][1] = 2.0 / (top - bottom);
@@ -75,7 +72,7 @@ glm::mat4 Camera::ortho(const GLfloat left, const GLfloat right,
 glm::mat4 Camera::perspective(const GLfloat fov, const GLfloat aspect,
 	const GLfloat zNear, const GLfloat zFar)
 {
-	// @TODO: Task2:请按照实验课内容补全透视投影矩阵的计算
+	// 透视投影矩阵的计算
 	GLfloat top = tan(fov * M_PI / 180 / 2) * zNear;
 	GLfloat right = top * aspect;
 
@@ -109,30 +106,31 @@ glm::mat4 Camera::frustum(const GLfloat left, const GLfloat right,
 
 void Camera::updateCamera()
 {
-	// @TODO: Task1 设置相机位置和方向
-	float eyex = radius * cos(upAngle * M_PI / 180.0) * sin(rotateAngle * M_PI / 180.0);
-	float eyey = radius * sin(upAngle * M_PI / 180.0) + 0.5;
-	float eyez = radius * cos(upAngle * M_PI / 180.0) * cos(rotateAngle * M_PI / 180.0);
-
-	eye = glm::vec4(eyex, eyey, eyez, 1.0);
-	at = glm::vec4(0.0, 0.5, 0.0, 1.0);
-	// up = vec4(0.0, 1.0, 0.0, 0.0);
-	// 使用相对于at的角度控制相机的时候，注意在upAngle大于90的时候，相机坐标系的u向量会变成相反的方向，
-	// 要将up的y轴改为负方向才不会发生这种问题
-
-	// 也可以考虑直接控制相机自身的俯仰角，
-	// 保存up，eye-at 这些向量，并修改这些向量方向来控制
-	// 看到这里的有缘人可以试一试
-	up = glm::vec4(0.0, 1.0, 0.0, 0.0);
-	if (upAngle > 90) {
-		up.y = -1;
+	if (mode == ORBIT) {
+		// 旋转视角：根据 radius、upAngle 和 rotateAngle 计算 at
+		float atx = eye.x + radius * cos(upAngle * M_PI / 180.0) * sin(rotateAngle * M_PI / 180.0);
+		float aty = eye.y + radius * sin(upAngle * M_PI / 180.0);
+		float atz = eye.z + radius * cos(upAngle * M_PI / 180.0) * cos(rotateAngle * M_PI / 180.0);
+		at = glm::vec4(atx, aty, atz, 1.0);
 	}
-	else if (upAngle < -90) {
-		up.y = -1;
-	}
+
+	// 更新视图矩阵
+	viewMatrix = lookAt(eye, at, up);
 }
 
+void Camera::updateOrbitParams() {
+	// 计算 radius：eye 和 at 之间的距离
+	radius = glm::length(glm::vec3(at - eye));
 
+	// 计算 direction：从 at 指向 eye 的方向
+	glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+
+	// 计算 rotateAngle：绕 y 轴的旋转角度（水平方向）
+	rotateAngle = glm::degrees(atan2(direction.x, direction.z));
+
+	// 计算 upAngle：绕 x 轴的俯仰角度（垂直方向）
+	upAngle = glm::degrees(asin(direction.y));
+}
 void Camera::keyboard(int key, int action, int mode)
 {
 	if (key == GLFW_KEY_U && (action == GLFW_PRESS || action == GLFW_REPEAT) && mode == 0x0000)
@@ -163,14 +161,22 @@ void Camera::keyboard(int key, int action, int mode)
 	{
 		radius -= 0.1;
 	}
-	else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && mode == 0x0000)
-	{
-		radius = 4.0;
-		rotateAngle = 0.0;
-		upAngle = 0.0;
-		fov = 45.0;
-		aspect = 1.0;
-		scale = 1.5;
+	else if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+		moveForward(moveSpeed);
 	}
-
+	else if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+		moveBackward(moveSpeed);
+	}
+	else if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+		moveLeft(moveSpeed);
+	}
+	else if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+		moveRight(moveSpeed);
+	}
+	else if (key == GLFW_KEY_SPACE && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+		moveUp(moveSpeed);
+	}
+	else if (key == GLFW_KEY_LEFT_CONTROL && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+		moveDown(moveSpeed);
+	}
 }
