@@ -418,7 +418,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\CheckError.h" />
     <ClInclude Include="include\GLBMesh.h" />
-    <ClInclude Include="include\keyboard.h" />
     <ClInclude Include="include\MeshPainter.h" />
     <ClInclude Include="include\TriMesh.h" />
   </ItemGroup>

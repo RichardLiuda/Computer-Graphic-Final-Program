@@ -41,9 +41,6 @@
     <ClInclude Include="include\GLBMesh.h">
       <Filter>Source Files\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\keyboard.h">
-      <Filter>Source Files\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\MeshPainter.h">
       <Filter>Source Files\include</Filter>
     </ClInclude>
