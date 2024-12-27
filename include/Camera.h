@@ -77,6 +77,7 @@ public:
         ORBIT,
         FREE
     };
+    
     Mode mode = FREE; // 默认模式为旋转视角
 
     bool follow = false;
