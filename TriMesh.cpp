@@ -573,3 +573,10 @@ void TriMesh::setModelMatrix(const glm::mat4 &matrix)
 {
     modelMatrix = matrix;
 }
+
+openGLObject TriMesh::getObject()
+{
+    return object;
+}
+
+void TriMesh::setObject(openGLObject object) { this->object = object; }

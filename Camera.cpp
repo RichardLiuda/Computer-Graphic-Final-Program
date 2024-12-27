@@ -190,3 +190,97 @@ void Camera::keyboard(int key, int action, int mode)
         moveDown(moveSpeed);
     }
 }
+
+void Camera::driving(float speed)
+{
+    glm::vec3 direction = glm::normalize(glm::vec3(0.0, 0.0, -1.0));
+    eye += glm::vec4(direction * speed, 0.0);
+    at += glm::vec4(direction * speed, 0.0);
+}
+
+void Camera::moveForward(float speed)
+{
+    if (mode == FREE)
+    {
+        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+        eye += glm::vec4(direction * speed, 0.0);
+        at += glm::vec4(direction * speed, 0.0);
+    }
+}
+
+void Camera::moveBackward(float speed)
+{
+    if (mode == FREE)
+    {
+        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+        eye -= glm::vec4(direction * speed, 0.0);
+        at -= glm::vec4(direction * speed, 0.0);
+    }
+}
+
+void Camera::moveLeft(float speed)
+{
+    if (mode == FREE)
+    {
+        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
+        eye += glm::vec4(right * speed, 0.0);
+        at += glm::vec4(right * speed, 0.0);
+    }
+}
+
+void Camera::moveRight(float speed)
+{
+    if (mode == FREE)
+    {
+        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
+        eye -= glm::vec4(right * speed, 0.0);
+        at -= glm::vec4(right * speed, 0.0);
+    }
+}
+
+void Camera::moveUp(float speed)
+{
+    if (mode == FREE)
+    {
+        eye += glm::vec4(glm::vec3(up) * speed, 0.0);
+        at += glm::vec4(glm::vec3(up) * speed, 0.0);
+    }
+}
+
+void Camera::moveDown(float speed)
+{
+    if (mode == FREE)
+    {
+        eye -= glm::vec4(glm::vec3(up) * speed, 0.0);
+        at -= glm::vec4(glm::vec3(up) * speed, 0.0);
+    }
+}
+
+void Camera::toggleMode()
+{
+    mode = (mode == ORBIT) ? FREE : ORBIT;
+    if (mode == ORBIT)
+    {
+        updateAt();
+        updateOrbitParams();
+    }
+}
+
+void Camera::updateAt()
+{
+    // 计算 at 的位置：位于相机正前方一定距离
+    glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+    at = eye + glm::vec4(direction * radius, 0.0);
+}
+
+void Camera::processMouseMovement(double xoffset, double yoffset)
+{
+    if (mode == ORBIT)
+    {
+        at = at + glm::vec4(-xoffset * 0.01, -yoffset * 0.01, 0.0, 0.0);
+        updateOrbitParams();
+        std::cout << "rotateAngle: " << rotateAngle << ", upAngle: " << upAngle << std::endl;
+    }
+}
