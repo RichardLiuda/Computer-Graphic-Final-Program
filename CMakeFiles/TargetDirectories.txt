@@ -1,3 +1,0 @@
-D:/Coding/Computer Graphic/期末大作业/Codes/CMakeFiles/main.dir
-D:/Coding/Computer Graphic/期末大作业/Codes/CMakeFiles/ALL_BUILD.dir
-D:/Coding/Computer Graphic/期末大作业/Codes/CMakeFiles/ZERO_CHECK.dir
