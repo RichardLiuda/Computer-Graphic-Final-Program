@@ -107,14 +107,11 @@ glm::mat4 Camera::frustum(const GLfloat left, const GLfloat right,
 
 void Camera::updateCamera()
 {
-    if (mode == ORBIT)
-    {
-        // 旋转视角：根据 radius、upAngle 和 rotateAngle 计算 at
-        float atx = eye.x + radius * cos(upAngle * M_PI / 180.0) * sin(rotateAngle * M_PI / 180.0);
-        float aty = eye.y + radius * sin(upAngle * M_PI / 180.0);
-        float atz = eye.z + radius * cos(upAngle * M_PI / 180.0) * cos(rotateAngle * M_PI / 180.0);
-        at = glm::vec4(atx, aty, atz, 1.0);
-    }
+    // 旋转视角：根据 radius、upAngle 和 rotateAngle 计算 at
+    float atx = eye.x + radius * cos(upAngle * M_PI / 180.0) * sin(rotateAngle * M_PI / 180.0);
+    float aty = eye.y + radius * sin(upAngle * M_PI / 180.0);
+    float atz = eye.z + radius * cos(upAngle * M_PI / 180.0) * cos(rotateAngle * M_PI / 180.0);
+    at = glm::vec4(atx, aty, atz, 1.0);
 
     // 更新视图矩阵
     viewMatrix = lookAt(eye, at, up);
@@ -200,72 +197,44 @@ void Camera::driving(float speed)
 
 void Camera::moveForward(float speed)
 {
-    if (mode == FREE)
-    {
-        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
-        eye += glm::vec4(direction * speed, 0.0);
-        at += glm::vec4(direction * speed, 0.0);
-    }
+    glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+    eye += glm::vec4(direction * speed, 0.0);
+    at += glm::vec4(direction * speed, 0.0);
 }
 
 void Camera::moveBackward(float speed)
 {
-    if (mode == FREE)
-    {
-        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
-        eye -= glm::vec4(direction * speed, 0.0);
-        at -= glm::vec4(direction * speed, 0.0);
-    }
+    glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+    eye -= glm::vec4(direction * speed, 0.0);
+    at -= glm::vec4(direction * speed, 0.0);
 }
 
 void Camera::moveLeft(float speed)
 {
-    if (mode == FREE)
-    {
-        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
-        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
-        eye += glm::vec4(right * speed, 0.0);
-        at += glm::vec4(right * speed, 0.0);
-    }
+    glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+    glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
+    eye += glm::vec4(right * speed, 0.0);
+    at += glm::vec4(right * speed, 0.0);
 }
 
 void Camera::moveRight(float speed)
 {
-    if (mode == FREE)
-    {
-        glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
-        glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
-        eye -= glm::vec4(right * speed, 0.0);
-        at -= glm::vec4(right * speed, 0.0);
-    }
+    glm::vec3 direction = glm::normalize(glm::vec3(at - eye));
+    glm::vec3 right = glm::normalize(glm::cross(glm::vec3(up), direction));
+    eye -= glm::vec4(right * speed, 0.0);
+    at -= glm::vec4(right * speed, 0.0);
 }
 
 void Camera::moveUp(float speed)
 {
-    if (mode == FREE)
-    {
-        eye += glm::vec4(glm::vec3(up) * speed, 0.0);
-        at += glm::vec4(glm::vec3(up) * speed, 0.0);
-    }
+    eye += glm::vec4(glm::vec3(up) * speed, 0.0);
+    at += glm::vec4(glm::vec3(up) * speed, 0.0);
 }
 
 void Camera::moveDown(float speed)
 {
-    if (mode == FREE)
-    {
-        eye -= glm::vec4(glm::vec3(up) * speed, 0.0);
-        at -= glm::vec4(glm::vec3(up) * speed, 0.0);
-    }
-}
-
-void Camera::toggleMode()
-{
-    mode = (mode == ORBIT) ? FREE : ORBIT;
-    if (mode == ORBIT)
-    {
-        updateAt();
-        updateOrbitParams();
-    }
+    eye -= glm::vec4(glm::vec3(up) * speed, 0.0);
+    at -= glm::vec4(glm::vec3(up) * speed, 0.0);
 }
 
 void Camera::updateAt()
@@ -277,10 +246,6 @@ void Camera::updateAt()
 
 void Camera::processMouseMovement(double xoffset, double yoffset)
 {
-    if (mode == ORBIT)
-    {
-        at = at + glm::vec4(-xoffset * 0.01, -yoffset * 0.01, 0.0, 0.0);
-        updateOrbitParams();
-        std::cout << "rotateAngle: " << rotateAngle << ", upAngle: " << upAngle << std::endl;
-    }
+    at = at + glm::vec4(-xoffset * 0.01, -yoffset * 0.01, 0.0, 0.0);
+    updateOrbitParams();
 }

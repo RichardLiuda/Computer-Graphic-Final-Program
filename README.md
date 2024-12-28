@@ -8,6 +8,33 @@
 - 实现了光照、阴影、纹理映射等功能
 - 支持用户交互，包括鼠标拖拽、键盘操作等
 - 支持多种材质和纹理，使用Phong光照模型，以增强模型的视觉效果
+```
+==========================================================
+Use mouse to control the light position (continously drag).
+==========================================================
+Keyboard Usage
+[Window]
+ESC:            Exit
+h:              Print help message
+
+[Model]
+l/L:            Increase/Decrease exposure
+q/Q:            Driving Mode
+
+[Camera]
+v/V:            Increase/Decrease the camera field of view
+w/W:            Increase/Decrease the camera height
+a/A:            Increase/Decrease the camera left/right angle
+s/S:            Increase/Decrease the camera forward/backward angle
+d/D:            Increase/Decrease the camera up/down angle
+space:          Increase the camera height
+ctrl:           Decrease the camera height
+u/U:            Increase/Decrease the rotate angle
+i/I:            Increase/Decrease the up angle
+o/O:            Increase/Decrease the camera radius
+```
+
+
 ---
 ### 备注
 **因为事情比较多，整体的代码框架延续了课程参考代码的风格，所以代码没有进行太多的优化，逻辑比较混乱，实现的功能也相对简单，请见谅。**

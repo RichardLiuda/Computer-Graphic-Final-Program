@@ -1,7 +1,7 @@
 #include "GLBMesh.h"
 
-void GlbMesh::import(std::string name, std::string type)
-{                                                                                                                                                      // 利用assimp库导入GLB模型
+void GlbMesh::import(std::string name, std::string type) // 利用assimp库导入GLB模型
+{
     filename = "./assets/" + name + "/" + name + "." + type;                                                                                           // 构建文件路径
     scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType); // 读取文件并应用处理选项
 
@@ -468,19 +468,7 @@ glm::vec3 GlbMesh::getRotation() // 获取网格旋转
     return glm::vec3(1.0f); // 如果没有网格，返回单位矩阵
 }
 
-void addMesh(GlbMesh *glb, TriMesh *mesh, std::string name, std::string vshader, std::string fshader, MeshPainter *painter, int i) // 添加网格
-{
-    mesh->setIsDisplay(true);
-    const std::string diffusePath = glb->getMaterials()[glb->getMaterialIndexes()[i]].diffuseTexturePath;
-    const std::string normalPath = glb->getMaterials()[glb->getMaterialIndexes()[i]].normalTexturePath;
-    const std::string specularPath = glb->getMaterials()[glb->getMaterialIndexes()[i]].specularTexturePath;
-    const std::string metalnessPath = glb->getMaterials()[glb->getMaterialIndexes()[i]].metalnessTexturePath;
-    const std::string roughnessPath = glb->getMaterials()[glb->getMaterialIndexes()[i]].roughnessTexturePath;
-    const std::string ambientOcclusionPath = glb->getMaterials()[glb->getMaterialIndexes()[i]].ambientOcclusionTexturePath;
-    painter->addMesh(mesh, name, diffusePath, normalPath, specularPath, metalnessPath, roughnessPath, ambientOcclusionPath, vshader, fshader);
-}
-
-void GlbMesh::updateAndLoad(MeshPainter *painter, glm::mat4 modelMatrix, Camera *camera, Light *light, std::string name, std::string vshader, std::string fshader) // 层级建模
+void GlbMesh::updateAndLoad(MeshPainter *painter, glm::mat4 modelMatrix, Camera *camera, Light *light, std::string name, std::string vshader, std::string fshader, bool isLoad) // 层级建模
 {
     // 应用父节点的变换
     modelMatrix = glm::translate(modelMatrix, translation);
@@ -494,13 +482,12 @@ void GlbMesh::updateAndLoad(MeshPainter *painter, glm::mat4 modelMatrix, Camera 
     {
         TriMesh *mesh = meshes[i];
         mesh->setModelMatrix(modelMatrix);
-        addMesh(this, mesh, name, vshader, fshader, painter, i);
+        if (isLoad)
+            painter->addMesh(mesh, name, mesh->diffusePath, mesh->normalPath, mesh->specularPath, mesh->metalnessPath, mesh->roughnessPath, mesh->ambientOcclusionPath, vshader, fshader);
     }
     // 更新并渲染子节点
     for (auto child : children)
     {
-        std::cout << child->getFilename() << std::endl;
-        child->updateAndLoad(painter, modelMatrix, camera, light, name, vshader, fshader);
-        std::cout << child->getTranslation().x << " " << child->getTranslation().y << " " << child->getTranslation().z << std::endl;
+        child->updateAndLoad(painter, modelMatrix, camera, light, name, vshader, fshader, isLoad);
     }
 }

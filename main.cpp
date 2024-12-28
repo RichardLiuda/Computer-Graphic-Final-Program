@@ -25,8 +25,8 @@ GlbMesh *su7_wheel4 = new GlbMesh();
 GlbMesh *tree = new GlbMesh();
 GlbMesh *tree2 = new GlbMesh();
 GlbMesh *furina = new GlbMesh();
-GlbMesh *bocchi = new GlbMesh();
-GlbMesh *nina = new GlbMesh();
+// GlbMesh *bocchi = new GlbMesh();
+// GlbMesh *nina = new GlbMesh();
 
 TriMesh *skybox = new TriMesh(); // 天空盒
 openGLObject skyboxObject;
@@ -35,6 +35,8 @@ GLuint cubemapTexture; // 天空盒纹理
 TriMesh *plane = new TriMesh(); // 地面
 
 Camera *camera = new Camera(); // 相机
+
+float fovTheta = 1.0f; // 视角变化步长
 
 bool mousePressed = false;
 double lastX, lastY;
@@ -113,7 +115,7 @@ void init()
     tree->setScale(glm::vec3(scale, scale, scale));
     tree->compute();
     setTexturePath(tree);
-    tree->updateAndLoad(painter, tree->getModelMatrix(), camera, light, "tree", vshader, fshader);
+    tree->updateAndLoad(painter, tree->getModelMatrix(), camera, light, "tree", vshader, fshader, true);
 
     tree2->initMeshes("tree", "glb"); // 路边树
     tree2->setTranslation(glm::vec3(6, 0, 0));
@@ -122,28 +124,16 @@ void init()
     tree2->setScale(glm::vec3(scale, scale, scale));
     tree2->compute();
     setTexturePath(tree2);
-    tree2->updateAndLoad(painter, tree2->getModelMatrix(), camera, light, "tree", vshader, fshader);
+    tree2->updateAndLoad(painter, tree2->getModelMatrix(), camera, light, "tree", vshader, fshader, true);
 
     furina->initMeshes("furina", "glb"); // 路边的人
-    furina->setTranslation(glm::vec3(2, 0, 0));
-    furina->setRotation(glm::vec3(0, -90, 0));
+    furina->setTranslation(glm::vec3(-2, 0, 0));
+    furina->setRotation(glm::vec3(0, 90, 0));
     scale = 0.5;
     furina->setScale(glm::vec3(scale, scale, scale));
     furina->compute();
     setTexturePath(furina);
-    furina->updateAndLoad(painter, furina->getModelMatrix(), camera, light, "furina", vshader, fshader);
-
-    bocchi->initMeshes("bocchi", "glb"); // 路边的人
-    bocchi->setTranslation(glm::vec3(6, 0, -3));
-    bocchi->setRotation(glm::vec3(0, -90, 0));
-    scale = 0.5;
-    bocchi->setScale(glm::vec3(scale, scale, scale));
-    bocchi->setAmbient(glm::vec4(1.0, 1.0, 1.0, 1.0));     // 环境光
-    bocchi->setDiffuse(glm::vec4(1.0, 1.0, 1.0, 1.0));     // 漫反射
-    bocchi->setSpecular(glm::vec4(10.0, 10.0, 10.0, 1.0)); // 镜面反射
-    bocchi->compute();
-    setTexturePath(bocchi);
-    bocchi->updateAndLoad(painter, bocchi->getModelMatrix(), camera, light, "bocchi", vshader, fshader);
+    furina->updateAndLoad(painter, furina->getModelMatrix(), camera, light, "furina", vshader, fshader, true);
 
     bmw->initMeshes("bmw_m3", "glb"); // 车
     bmw->setTranslation(glm::vec3(-4, 0, 0));
@@ -151,7 +141,8 @@ void init()
     scale = 0.14;
     bmw->setScale(glm::vec3(scale, scale, scale));
     bmw->compute();
-    bmw->updateAndLoad(painter, bmw->getModelMatrix(), camera, light, "bmw", vshader, fshader);
+    setTexturePath(bmw);
+    bmw->updateAndLoad(painter, bmw->getModelMatrix(), camera, light, "bmw", vshader, fshader, true);
 
     su7->initMeshes("su7", "glb"); // 小米su7 max
     su7->setTranslation(glm::vec3(0.9, 0.0, 0.0));
@@ -166,6 +157,7 @@ void init()
     su7_wheel1->setRotation(glm::vec3(0.0, 0.0, 0.0));
     su7_wheel1->setScale(glm::vec3(1, 1, 1));
     su7_wheel1->compute();
+    setTexturePath(su7_wheel1);
     su7->addChild(su7_wheel1);
 
     su7_wheel2->initMeshes("su7_wheel2", "glb");
@@ -173,6 +165,7 @@ void init()
     su7_wheel2->setRotation(glm::vec3(0.0, 0.0, 0.0));
     su7_wheel2->setScale(glm::vec3(1, 1, 1));
     su7_wheel2->compute();
+    setTexturePath(su7_wheel2);
     su7->addChild(su7_wheel2);
 
     su7_wheel3->initMeshes("su7_wheel3", "glb");
@@ -180,6 +173,7 @@ void init()
     su7_wheel3->setRotation(glm::vec3(0.0, 0.0, 0.0));
     su7_wheel3->setScale(glm::vec3(1, 1, 1));
     su7_wheel3->compute();
+    setTexturePath(su7_wheel3);
     su7->addChild(su7_wheel3);
 
     su7_wheel4->initMeshes("su7_wheel4", "glb");
@@ -187,15 +181,15 @@ void init()
     su7_wheel4->setRotation(glm::vec3(0.0, 0.0, 0.0));
     su7_wheel4->setScale(glm::vec3(1, 1, 1));
     su7_wheel4->compute();
+    setTexturePath(su7_wheel4);
     su7->addChild(su7_wheel4);
 
-    su7->updateAndLoad(painter, su7->getModelMatrix(), camera, light, "su7", vshader, fshader);
+    su7->updateAndLoad(painter, su7->getModelMatrix(), camera, light, "su7", vshader, fshader, true);
 
     plane->generateSquare(glm::vec3(1, 1, 1)); // 地面
     plane->setRotation(glm::vec3(0, 0, 0));
     plane->setTranslation(glm::vec3(0, -0.001, 0));
     plane->setScale(glm::vec3(10, 1, 100));
-
     plane->setAmbient(glm::vec4(0.105882f, 0.058824f, 0.113725f, 1.0f));
     plane->setDiffuse(glm::vec4(0.427451f, 0.470588f, 0.541176f, 1.0f));
     plane->setSpecular(glm::vec4(0.333333f, 0.333333f, 0.521569f, 1.0f));
@@ -208,7 +202,7 @@ void init()
 void initSu7() // 初始化小米su7 max位置
 {
     su7->setTranslation(glm::vec3(0.9, 0.0, 0.0));
-    su7->updateAndLoad(painter, glm::mat4(1.0), camera, light, "su7", "shaders/vshader.glsl", "shaders/fshader.glsl");
+    su7->updateAndLoad(painter, glm::mat4(1.0), camera, light, "su7", "shaders/vshader.glsl", "shaders/fshader.glsl", false);
 }
 
 void initSky() // 初始化天空盒
@@ -229,7 +223,16 @@ void display() // 绘制
 {
     if (painter->isDrive)
     {
-        painter->speed += 0.2; // 车加速度
+        painter->speed += 1; // 车加速度
+    }
+    if (camera->eye.z < -800)
+    {
+        std::cout << "Let's explore this area later! " << std::endl;
+        painter->speed = 0.3;                         // 设置速度为0.3，退出驾驶模式后的默认速度
+        painter->isDrive = false;                     // 将驾驶模式标志设置为false，表示退出驾驶模式
+        initSu7();                                    // 初始化驾驶模式相关的设置或资源
+        camera->eye = glm::vec4(0.7, 0.55, 0.0, 1.0); // 设置相机的位置向量
+        camera->at = glm::vec4(0.7, 0.55, -4.0, 1.0); // 设置相机看向的目标向量
     }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);                // 清除颜色缓冲和深度缓冲
     painter->drawMeshes(light, camera);                                // 绘制所有网格
@@ -250,10 +253,10 @@ void printHelp()
               << std::endl
               << "[Model]" << std::endl
               << "l/L:		Increase/Decrease exposure" << std::endl
+              << "q/Q:      Driving Mode" << std::endl
               << std::endl
               << "[Camera]" << std::endl
-              << "v/V:		Increase/Decrease the camera field of view" << std::endl
-              << "m/M:		Change the camera move mode" << std::endl
+              << "v/V:		Increase/Decrease the camera field of view"
               << std::endl
               << "w/W:		Increase/Decrease the camera height" << std::endl
               << "a/A:		Increase/Decrease the camera left/right angle" << std::endl
@@ -267,8 +270,6 @@ void printHelp()
               << "o/O:		Increase/Decrease the camera radius" << std::endl
               << std::endl;
 }
-
-float fovTheta = 1.0f; // 视角变化步长
 
 void mainWindow_key_callback(GLFWwindow *window, int key, int scancode, int action, int mode) // 键盘回调函数
 {
@@ -287,43 +288,46 @@ void mainWindow_key_callback(GLFWwindow *window, int key, int scancode, int acti
     }
     else if (key == GLFW_KEY_L && (action == GLFW_PRESS || action == GLFW_REPEAT) && mode == GLFW_MOD_SHIFT)
     {
-        painter->exposure -= 1;
+        if (painter->exposure >= 1)
+            painter->exposure -= 1;
         std::cout << "exposure: " << painter->exposure << std::endl;
     }
     else if (key == GLFW_KEY_V && (action == GLFW_PRESS || action == GLFW_REPEAT) && mode == 0x0000)
     {
         camera->fov += fovTheta;
-        std::cout << "fov: " << camera->fov << std::endl;
+        float f = 18.0f / tan(glm::radians(camera->fov) / 2.0f);
+        std::cout << "fov: " << f << "mm" << std::endl;
     }
     else if (key == GLFW_KEY_V && (action == GLFW_PRESS || action == GLFW_REPEAT) && mode == GLFW_MOD_SHIFT)
     {
-        camera->fov -= fovTheta;
-        std::cout << "fov: " << camera->fov << std::endl;
+        if (camera->fov >= 1)
+        {
+            camera->fov -= fovTheta;
+            float f = 18.0f / tan(glm::radians(camera->fov) / 2.0f);
+            std::cout << "fov: " << f << "mm" << std::endl;
+        }
     }
-    else if (key == GLFW_KEY_M && action == GLFW_PRESS)
+    else if (key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT) && mode == 0x0000)
     {
-        camera->toggleMode();
-        std::cout << "Switched to " << (camera->mode == Camera::ORBIT ? "Orbit Mode" : "Free Mode") << "\n";
+        painter->treeSplit += 50;
     }
-    else if (key == GLFW_KEY_F && action == GLFW_PRESS)
+    else if (key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT) && mode == GLFW_MOD_SHIFT)
     {
-        camera->follow = !camera->follow;
+        painter->treeSplit -= 50;
     }
     else if (key == GLFW_KEY_Q && action == GLFW_PRESS)
     {
         if (painter->isDrive) // 如果当前是驾驶模式
         {
-            initSu7();                                    // 初始化驾驶模式相关的设置或资源
+            painter->speed = 0.3;                         // 设置速度为0.3，退出驾驶模式后的默认速度
             painter->isDrive = false;                     // 将驾驶模式标志设置为false，表示退出驾驶模式
-            camera->follow = false;                       // 设置相机不跟随，可能是停止跟随驾驶对象
-            painter->speed = 0.3;                         // 设置绘画速度为0.3，可能是退出驾驶模式后的默认速度
+            initSu7();                                    // 初始化驾驶模式相关的设置或资源
             camera->eye = glm::vec4(0.7, 0.55, 0.0, 1.0); // 设置相机的位置向量
             camera->at = glm::vec4(0.7, 0.55, -4.0, 1.0); // 设置相机看向的目标向量
         }
         else
         {
             painter->isDrive = !painter->isDrive;         // 切换驾驶模式标志，即从非驾驶模式切换到驾驶模式
-            camera->mode = Camera::FREE;                  // 设置相机模式为自由模式
             camera->eye = glm::vec4(0.7, 0.55, 0.0, 1.0); // 设置相机的位置向量
             camera->at = glm::vec4(0.7, 0.55, -4.0, 1.0); // 设置相机看向的目标向量
             std::cout << "Switched to " << (painter->isDrive ? "Drive" : "Not Drive") << "\n";
@@ -357,13 +361,21 @@ void cleanData() // 清理数据
 
 void setCallbacks(GLFWwindow *window, const int WIDTH, const int HEIGHT) // 设置回调函数
 {
+    // 设置窗口的帧缓冲大小回调函数，当窗口大小改变时调用
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    // 设置窗口的键盘按键回调函数，当键盘按键被按下或释放时调用
     glfwSetKeyCallback(window, mainWindow_key_callback);
+    // 设置窗口的鼠标按钮回调函数，当鼠标按钮被按下或释放时调用
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    // 设置窗口的鼠标位置回调函数，当鼠标位置改变时调用
     glfwSetCursorPosCallback(window, cursorPositionCallback);
+    // 设置相机的纵横比，即窗口的宽高比
     camera->setAspect(static_cast<float>(WIDTH) / static_cast<float>(HEIGHT));
+    // 更新相机的投影矩阵，以反映新的纵横比
     camera->updateProjectionMatrix();
+    // 将相机的指针设置为窗口的用户指针，以便在回调函数中访问相机对象
     glfwSetWindowUserPointer(window, &camera);
+    // 再次设置窗口的帧缓冲大小回调函数，可能是为了确保设置生效或覆盖之前的设置
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 }
 
@@ -399,7 +411,7 @@ int main(int argc, char **argv) // 主函数
         std::cout << "Failed to initMeshialize GLAD" << std::endl;
         return -1;
     }
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); // 开启深度测试
     init();
     initSky();
     printHelp();

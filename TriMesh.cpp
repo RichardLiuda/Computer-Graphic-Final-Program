@@ -384,42 +384,51 @@ void TriMesh::normalReverse()
 
 void TriMesh::computeBounds()
 {
+    // 初始化最低点和最高点，使用0x3f3f3f3f和-0x3f3f3f3f分别表示初始值
     lowest = 0x3f3f3f3f;
     highest = -0x3f3f3f3f;
+    // 获取当前对象的旋转角度的x分量
     if (getRotation().x > 45)
     {
+        // 如果旋转角度的x分量大于45度，则计算z方向的最低点和最高点
         for (auto i : points)
         {
+            // 更新最低点
             if (i.z < lowest)
             {
                 lowest = i.z;
             }
+            // 更新最高点
             if (i.z > highest)
             {
                 highest = i.z;
             }
         }
+        // 将最低点和最高点取反并交换
         lowest *= -1;
         highest *= -1;
         std::swap(lowest, highest);
     }
     else
     {
+        // 如果旋转角度的x分量小于等于45度，则计算y方向的最低点和最高点
         for (auto i : points)
         {
+            // 更新最低点
             if (i.y < lowest)
             {
                 lowest = i.y;
             }
+            // 更新最高点
             if (i.y > highest)
             {
                 highest = i.y;
             }
         }
     }
-    GLdouble _scale = (scale.x + scale.y + scale.z) / 3;
-    clowest = lowest;
-    lowest *= _scale;
+    GLdouble _scale = (scale.x + scale.y + scale.z) / 3; // 计算缩放因子，取x、y、z三个方向的缩放值的平均值
+    clowest = lowest;                                    // 保存原始的最低点
+    lowest *= _scale;                                    // 将最低点和最高点乘以缩放因子
     highest *= _scale;
 }
 
@@ -515,47 +524,29 @@ void TriMesh::generateSkybox() // 天空盒
     // 天空盒的顶点数据
     float skyboxVertices[] = {
         // positions
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+        1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
 
-        -1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
 
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
 
-        -1.0f, -1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,
 
-        -1.0f, 1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f,
 
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f};
+        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,
+        1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
 
     // 将顶点数据存储到 vertex_positions 中
     for (int i = 0; i < 36; i++)

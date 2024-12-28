@@ -56,28 +56,9 @@ void main() {
 
         vec4 normalMap = texture(normalTexture, texCoord);
         vec4 specularMap = texture(specularTexture, texCoord);
-        specularMap = max(specularMap, vec4(0.01)); // 确保镜面反射贴图不为0
-        if(specularMap == vec4(0.01)){
-            specularMap = vec4(1.0);
-        }
-
         vec4 metalnessMap = texture(metalnessTexture, texCoord);
-        metalnessMap = max(metalnessMap, vec4(0.01)); // 确保金属度贴图不为0
-        if(metalnessMap == vec4(0.01)){
-            metalnessMap = vec4(1.0);
-        }
-
         vec4 roughnessMap = texture(roughnessTexture, texCoord);
-        roughnessMap = max(roughnessMap, vec4(0.01)); // 确保粗糙度贴图不为0
-        if(roughnessMap == vec4(0.01)){
-            roughnessMap = vec4(1.0);
-        }
-
         vec4 ambientMap = texture(ambientOcclusionTexture, texCoord);
-        ambientMap = max(ambientMap, vec4(0.01)); // 确保环境光遮蔽贴图不为0
-        if(ambientMap == vec4(0.01)){
-            ambientMap = vec4(1.0);
-        }
 
         // 计算法线（使用法线贴图）
         vec3 tangentNormal = normalMap.xyz * 2.0 - 1.0; // 将法线从 [0, 1] 转换到 [-1, 1]

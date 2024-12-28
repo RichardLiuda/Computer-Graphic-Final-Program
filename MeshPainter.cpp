@@ -142,7 +142,7 @@ void MeshPainter::bindLightAndMaterial(TriMesh *mesh, openGLObject &object, Ligh
     glUniform3fv(glGetUniformLocation(object.program, "light.position"), 1, &lightPosition[0]);
 
     // 设置平行光的方向
-    glm::vec3 lightDirection = glm::vec3(-1.0f, -1.0f, -0.5f); // 例如，光线从右上角射向左下角
+    glm::vec3 lightDirection = glm::vec3(-1.0f, -1.0f, -1.0f); // 例如，光线从右上角射向左下角
     lightDirection = glm::normalize(lightDirection);
 
     // 将平行光方向传递给着色器
@@ -295,15 +295,15 @@ void MeshPainter::drawMesh_background(TriMesh *mesh, openGLObject &object, Light
 
 void MeshPainter::drawMeshes(Light *light, Camera *camera)
 {
-    // 检查是否处于驾驶模式
+    // 遍历所有网格
     if (isDrive)
     {
         // 如果是驾驶模式，则根据速度更新相机位置
         camera->driving(speed / 200);
     }
-    // 遍历所有网格
     for (int i = 0; i < meshes.size(); i++)
     {
+        // 检查是否处于驾驶模式
         // 如果网格名称为"plane"，则调用绘制背景网格的函数
         if (mesh_names[i] == "plane")
             drawMesh_background(meshes[i], opengl_objects[i], light, camera);
@@ -336,15 +336,15 @@ void MeshPainter::drawMeshes(Light *light, Camera *camera)
         // 如果网格名称为"tree"
         if (mesh_names[i] == "tree")
         {
-            // 遍历30次，生成多个树
-            for (int j = 1; j < 30; j++)
+            // 遍历40次，生成多个树
+            for (int j = 1; j < 40; j++)
             {
                 // 获取当前网格的模型矩阵
                 TriMesh *mesh = meshes[i];
                 glm::mat4 model = mesh->getModelMatrix();
                 glm::mat4 modelNew = model;
                 // 将模型矩阵沿Z轴向后平移
-                modelNew = glm::translate(modelNew, glm::vec3(0, 0, -5000 * j));
+                modelNew = glm::translate(modelNew, glm::vec3(0, 0, -treeSplit * j));
                 // 更新网格的模型矩阵
                 mesh->setModelMatrix(modelNew);
                 // 创建一个新的OpenGL对象
